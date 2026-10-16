@@ -46,7 +46,7 @@ public class Login {
     }
     
     // Checks that the cell phone number starts with the South African international code (+27)
-    // followed by 9 digits, matching the required international format
+    // followed by 9 or 10 digits, matching the required international format
     // Reference: regex pattern adapted from general E.164 phone number validation conventions (regular-expressions.info)
     public boolean checkCellPhoneNumber(String cellPhoneNumber) {
     if (cellPhoneNumber == null) {
