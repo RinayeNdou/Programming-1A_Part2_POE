@@ -1,5 +1,6 @@
 package com.st10470759.chatapp_part2;
 
+import java.util.Scanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,6 +17,22 @@ public class MessageTest {
     @BeforeEach
     public void setUp() {
         msg = new Message();
+    }
+
+    // Runs the two test messages through sendingMessages.
+    // Message 1 is sent and message 2 is disregarded (typed in for us, one line at a time).
+    // 08575975889 is rejected by the recipient check, so message 2 uses a valid number here.
+    private void runTestMessages() {
+        String typedInput = "+27718693002\n"
+                + "Hi Mike, can you join us for dinner tonight?\n"
+                + "1\n"
+                + "+27825975889\n"
+                + "Hi Keegan, did you receive the payment?\n"
+                + "2\n"
+                + "0\n";
+        Scanner input = new Scanner(typedInput);
+        msg.setMessagesAllowed(2);
+        msg.sendingMessages(input);
     }
 
     // Message is not more than 250 characters (success)
@@ -48,7 +65,8 @@ public class MessageTest {
         System.out.println("checkRecipientCell - failure");
         assertEquals("Cell phone number is incorrectly formatted or does not contain an international code. Please correct the number and try again.", msg.checkRecipientCell("08575975889"));
     }
-         // Message hash is correct for Test Case 1
+
+    // Message hash is correct for Test Case 1
     // We pass in our own ID because the hash needs an ID that starts with 00
     @Test
     public void testMessageHash_TestCase1() {
@@ -84,53 +102,68 @@ public class MessageTest {
         }
     }
 
-    // Message ID is created: ten digits and accepted by checkMessageID
+    // A message ID is created: it has 10 digits and the message says "Message ID generated: <ID>"
     @Test
     public void testMessageID_Created() {
-        System.out.println("generateMessageID - created");
+        System.out.println("generateMessageID");
         String id = msg.generateMessageID();
+        assertEquals("Message ID generated: " + id, msg.messageIDCreated(id));
         assertEquals(10, id.length());
-        assertTrue(id.matches("[0-9]{10}"));
         assertTrue(msg.checkMessageID(id));
-        // The brief expects the output "Message ID generated: <Message ID>"
-        assertEquals("Message ID generated: " + id, "Message ID generated: " + id);
     }
 
-    // Message ID of more than ten characters is rejected
+    // A ten-character ID is allowed
     @Test
-    public void testMessageID_TooLong() {
-        System.out.println("checkMessageID - too long");
+    public void testCheckMessageID_Valid() {
+        System.out.println("checkMessageID - valid");
+        assertTrue(msg.checkMessageID("1234567890"));
+    }
+
+    // An ID longer than ten characters is not allowed
+    @Test
+    public void testCheckMessageID_Invalid() {
+        System.out.println("checkMessageID - invalid");
         assertFalse(msg.checkMessageID("12345678901"));
     }
 
-    // SentMessage returns the right message for each choice (the "MessageSent" test)
+    // User selected 'Send Message'
     @Test
-    public void testSentMessage_AllChoices() {
-        System.out.println("SentMessage - choices 1, 2 and 3");
+    public void testSentMessage_Send() {
+        System.out.println("SentMessage - send");
         assertEquals("Message successfully sent.", msg.SentMessage(1));
+    }
+
+    // User selected 'Disregard Message'
+    @Test
+    public void testSentMessage_Disregard() {
+        System.out.println("SentMessage - disregard");
         assertEquals("Press 0 to delete the message.", msg.SentMessage(2));
+    }
+
+    // User selected 'Store Message'
+    @Test
+    public void testSentMessage_Store() {
+        System.out.println("SentMessage - store");
         assertEquals("Message successfully stored.", msg.SentMessage(3));
     }
 
-    // Test data from the brief: 2 messages, the first is sent and the second is disregarded
-    // The Scanner is given the typed answers so no one has to type during the test
-    // Message 2 uses a valid number here, because the app rejects 08575975889 as invalid
+    // Message 1 is sent and message 2 is disregarded, so the total sent is 1
     @Test
-    public void testTotalMessages_SendAndDiscard() {
-        System.out.println("returnTotalMessages - one sent, one disregarded");
-        String typed = "+27718693002\n"
-                + "Hi Mike, can you join us for dinner tonight?\n"
-                + "1\n"
-                + "+27718693002\n"
-                + "Hi Keegan, did you receive the payment?\n"
-                + "2\n"
-                + "0\n";
-        msg.setMessagesAllowed(2);
-        msg.sendingMessages(new java.util.Scanner(typed));
-
-        // Only the sent message counts
+    public void testReturnTotalMessages() {
+        System.out.println("returnTotalMessages");
+        runTestMessages();
         assertEquals(1, msg.returnTotalMessages());
-        assertTrue(msg.printMessages().contains("Hi Mike, can you join us for dinner tonight?"));
-        assertFalse(msg.printMessages().contains("Hi Keegan"));
     }
+
+    // Only the sent message is listed, the disregarded one is not
+    @Test
+    public void testPrintMessages() {
+        System.out.println("printMessages");
+        runTestMessages();
+        String result = msg.printMessages();
+        assertTrue(result.contains("Hi Mike, can you join us for dinner tonight?"));
+        assertTrue(result.contains("+27718693002"));
+        assertFalse(result.contains("Keegan"));
+    }
+
 }
