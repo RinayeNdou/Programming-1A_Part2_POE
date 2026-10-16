@@ -9,7 +9,7 @@ import java.util.Scanner;
  *
  * @author rnndo
  */
-public class ChatApp_Part2 {
+public class Registration {
 
  public static void main(String[] args) {
 
