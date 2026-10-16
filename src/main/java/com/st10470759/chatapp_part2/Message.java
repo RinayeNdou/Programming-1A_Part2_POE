@@ -87,7 +87,7 @@ public class Message {
 
             // ID and hash
             String messageID = generateMessageID();
-            System.out.println("Message ID generated: " + messageID);
+            System.out.println(messageIDCreated(messageID));
             String messageHash = createMessageHash(messageID, numMessageSent, messageText);
 
             // Ask what to do with the message (keeps asking until the choice is 1, 2 or 3)
@@ -167,6 +167,10 @@ public class Message {
             return false;
         }
         return messageID.length() <= 10;
+    }
+        // Returns the message shown when a message ID has been made
+    public String messageIDCreated(String messageID) {
+        return "Message ID generated: " + messageID;
     }
 
     // Checks the recipient number by reusing checkCellPhoneNumber from Part 1
